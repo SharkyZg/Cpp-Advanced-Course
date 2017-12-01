@@ -14,15 +14,13 @@ using namespace std;
 class Test {
 private:
 	static const int SIZE = 100;
-	int *_pBuffer;
+	int *_pBuffer { nullptr };
 
 public:
 	Test() {
-		cout << "constructor" << endl;
 		_pBuffer = new int[SIZE] { };
 	}
 	Test(int i) {
-		cout << "parameterized constructor" << endl;
 		_pBuffer = new int[SIZE] { };
 		for (int i = 0; i < SIZE; i++) {
 			_pBuffer[i] = 7 * i;
@@ -30,23 +28,35 @@ public:
 	}
 
 	Test(const Test &other) {
-		cout << "copy constructor" << endl;
 
 		_pBuffer = new int[SIZE] { };
 
 		memcpy(_pBuffer, other._pBuffer, SIZE * sizeof(int));
+	}
+
+	Test(Test &&other) {
+		cout << "Move constructor" << endl;
+		_pBuffer = other._pBuffer;
+		other._pBuffer = nullptr;
 	}
 
 	Test &operator=(const Test &other) {
-		cout << "copy constructor" << endl;
 
 		_pBuffer = new int[SIZE] { };
 
 		memcpy(_pBuffer, other._pBuffer, SIZE * sizeof(int));
 	}
 
+	Test &operator=(Test &&other) {
+		cout << "Move assignment" << endl;
+		delete [] _pBuffer;
+		_pBuffer = other._pBuffer;
+		other._pBuffer = nullptr;
+
+		return *this;
+	}
+
 	~Test() {
-		cout << "destructor" << endl;
 
 		delete[] _pBuffer;
 	}
@@ -62,28 +72,13 @@ Test getTest() {
 	return Test();
 }
 
-void check(const Test &value) {
-	cout << "lValue function!" <<endl;
-}
-
-void check(Test &&value) {
-	cout << "rValue function!" <<endl;
-}
-
 int main() {
-
-	Test test1 = getTest();
-	cout << test1 << endl;
 
 	vector<Test> vec;
 	vec.push_back(Test());
 
-	Test &ltest1 = test1;
+	Test test;
+	test = getTest();
 
-	Test &&rtest1 = Test();
-	Test &&rtest2 = getTest();
-
-	check(ltest1);
-	check(getTest());
 	return 0;
 }
